@@ -1,0 +1,4 @@
+resources:
+  experiments:
+    cgu_forecast:
+      name: /Workspace/Users/${workspace.current_user.userName}/cgu_volume_forecast

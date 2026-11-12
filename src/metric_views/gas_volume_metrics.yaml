@@ -1,0 +1,45 @@
+version: 1.1
+comment: >
+  Colorado Gas Utility (fictional) gas volume semantic layer for FP&A: daily validated volume per
+  service region with weather. Replaces the volume measures of the on-prem SSAS cube.
+source: __CATALOG__.cgu_fpa.gold_daily_region
+dimensions:
+  - name: Region
+    expr: region_name
+  - name: Region ID
+    expr: region_id
+  - name: Gas Day
+    expr: gas_day
+  - name: Month
+    expr: DATE_TRUNC('MONTH', gas_day)
+  - name: Gas Season
+    expr: >
+      CASE WHEN MONTH(gas_day) >= 11 THEN CONCAT(YEAR(gas_day), '-', RIGHT(CAST(YEAR(gas_day) + 1 AS STRING), 2))
+           WHEN MONTH(gas_day) <= 3 THEN CONCAT(YEAR(gas_day) - 1, '-', RIGHT(CAST(YEAR(gas_day) AS STRING), 2))
+           ELSE 'Off season' END
+    comment: Heating season, November through March, labeled like 2026-27.
+  - name: Read Status
+    expr: read_status
+  - name: High Occupancy Day
+    expr: CASE WHEN holiday_flag = 1 THEN 'Yes' ELSE 'No' END
+measures:
+  - name: Total Volume Dth
+    expr: SUM(volume_dth)
+    comment: Total delivered gas volume in dekatherms.
+  - name: Average Daily Volume Dth
+    expr: AVG(volume_dth)
+  - name: Average Customers
+    expr: AVG(customers)
+    comment: Average meters (residential plus commercial) over the selected days.
+  - name: Dth per Customer Day
+    expr: SUM(volume_dth) / NULLIF(SUM(customers), 0)
+    comment: Use per customer per day, the quantity the forecast model predicts before multiplying by customers.
+  - name: Total HDD65
+    expr: SUM(hdd65)
+    comment: Heating degree days, base 65F.
+  - name: Dth per HDD
+    expr: SUM(volume_dth) / NULLIF(SUM(hdd65), 0)
+    comment: Weather sensitivity, dekatherms per heating degree day.
+  - name: Estimated Read Share
+    expr: AVG(CASE WHEN read_status = 'ESTIMATED' THEN 1.0 ELSE 0.0 END)
+    comment: Share of region-days still on an estimated meter read.

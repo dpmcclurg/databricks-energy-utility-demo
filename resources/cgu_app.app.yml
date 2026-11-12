@@ -1,0 +1,32 @@
+resources:
+  apps:
+    cgu_volume_plan:
+      name: cgu-winter-volume-plan
+      description: Colorado Gas Utility (fictional) winter volume plan, regional sign-off, publish to trading, and season tracker.
+      source_code_path: ../src/app
+      config:
+        command: ["streamlit", "run", "app.py"]
+        env:
+          - name: UC_CATALOG
+            value: ${var.catalog}
+          - name: DATABRICKS_WAREHOUSE_ID
+            value_from: sql-warehouse
+          - name: GENIE_SPACE_ID
+            value: ${var.genie_space_id}
+          - name: LAKEBASE_ENDPOINT
+            value: projects/${var.lakebase_project}/branches/${var.lakebase_branch}/endpoints/primary
+      resources:
+        - name: sql-warehouse
+          sql_warehouse:
+            id: ${var.warehouse_id}
+            permission: CAN_USE
+        - name: postgres
+          postgres:
+            branch: projects/${var.lakebase_project}/branches/${var.lakebase_branch}
+            database: projects/${var.lakebase_project}/branches/${var.lakebase_branch}/databases/databricks-postgres
+            permission: CAN_CONNECT_AND_CREATE
+        - name: genie
+          genie_space:
+            name: winter-volume-plan
+            space_id: ${var.genie_space_id}
+            permission: CAN_RUN

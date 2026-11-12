@@ -1,0 +1,20 @@
+resources:
+  pipelines:
+    cgu_pipeline:
+      name: cgu_gas_volume_pipeline
+      serverless: true
+      catalog: ${var.catalog}
+      schema: cgu_core
+      channel: CURRENT
+      root_path: ../src/pipeline
+      libraries:
+        - glob:
+            include: ../src/pipeline/transformations/**
+      configuration:
+        cgu.catalog: ${var.catalog}
+      event_log:
+        catalog: ${var.catalog}
+        schema: cgu_core
+        name: pipeline_event_log
+      tags:
+        domain: finance

@@ -1,0 +1,645 @@
+{
+  "datasets": [
+    {
+      "name": "ds_kpi",
+      "displayName": "Headline checks",
+      "queryLines": [
+        "WITH v AS (SELECT batch, MAX(rows_checked) AS checked FROM gold_dq_summary WHERE target = 'daily_volume' GROUP BY batch) ",
+        "SELECT (SELECT SUM(checked) FROM v) AS records_checked, ",
+        "(SELECT SUM(rows_failed) FROM gold_dq_summary WHERE action = 'drop' AND target = 'daily_volume') AS rows_quarantined, ",
+        "(SELECT SUM(rows_failed) FROM gold_dq_summary WHERE action = 'warn') AS rows_flagged, ",
+        "(SELECT COUNT_IF(status = 'BALANCED') FROM gold_reconciliation) AS extracts_balanced "
+      ]
+    },
+    {
+      "name": "ds_rules",
+      "displayName": "Rule results",
+      "queryLines": [
+        "SELECT s.rule_name, s.target, s.action, s.batch, s.rows_checked, s.rows_failed, s.pass_rate, r.constraint_sql, r.description, r.owner ",
+        "FROM gold_dq_summary s JOIN dq_rules r ON s.rule_name = r.rule_name ORDER BY s.batch, s.rule_name"
+      ]
+    },
+    {
+      "name": "ds_recon",
+      "displayName": "Reconciliation",
+      "queryLines": [
+        "SELECT batch, control_events, bronze_events, control_sum_volume, bronze_sum_volume, status FROM gold_reconciliation ORDER BY batch"
+      ]
+    },
+    {
+      "name": "ds_quarantine",
+      "displayName": "Quarantine",
+      "queryLines": [
+        "SELECT _batch AS batch, region_id, gas_day, volume, read_status, array_join(failed_rules, ', ') AS failed_rules ",
+        "FROM cgu_core.quarantine_daily_volume ORDER BY gas_day"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "dq",
+      "displayName": "Data quality",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Gas volume data quality\n"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "subtitle",
+            "multilineTextboxSpec": {
+              "lines": [
+                "Every record from the gas measurement system is checked against rules FP&A owns in `cgu_fpa.dq_rules`. Failing volume records are quarantined, estimated reads are flagged, weather records outside physical limits are dropped, and every extract reconciles to the source's control totals."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-checked",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpi",
+                  "fields": [
+                    {
+                      "name": "records_checked",
+                      "expression": "`records_checked`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "records_checked",
+                  "displayName": "Records checked",
+                  "format": {
+                    "type": "number",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Records checked"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-quarantined",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpi",
+                  "fields": [
+                    {
+                      "name": "rows_quarantined",
+                      "expression": "`rows_quarantined`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "rows_quarantined",
+                  "displayName": "Rows quarantined",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "none"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Rows quarantined"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-flagged",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpi",
+                  "fields": [
+                    {
+                      "name": "rows_flagged",
+                      "expression": "`rows_flagged`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "rows_flagged",
+                  "displayName": "Estimated reads flagged",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "none"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Estimated reads flagged"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi-balanced",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpi",
+                  "fields": [
+                    {
+                      "name": "extracts_balanced",
+                      "expression": "`extracts_balanced`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "extracts_balanced",
+                  "displayName": "Extracts reconciled",
+                  "format": {
+                    "type": "number",
+                    "abbreviation": "none"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Extracts reconciled"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "failed-by-rule",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_rules",
+                  "fields": [
+                    {
+                      "name": "rule_name",
+                      "expression": "`rule_name`"
+                    },
+                    {
+                      "name": "sum(rows_failed)",
+                      "expression": "SUM(`rows_failed`)"
+                    },
+                    {
+                      "name": "action",
+                      "expression": "`action`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rule_name",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Rule"
+                },
+                "y": {
+                  "fieldName": "sum(rows_failed)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Rows failed"
+                },
+                "color": {
+                  "fieldName": "action",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "drop",
+                        "color": "#FF7E5C"
+                      },
+                      {
+                        "value": "warn",
+                        "color": "#FFA600"
+                      }
+                    ]
+                  },
+                  "displayName": "Action"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Rows failed by FP&A rule (all extracts)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "recon",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_recon",
+                  "fields": [
+                    {
+                      "name": "batch",
+                      "expression": "`batch`"
+                    },
+                    {
+                      "name": "control_events",
+                      "expression": "`control_events`"
+                    },
+                    {
+                      "name": "bronze_events",
+                      "expression": "`bronze_events`"
+                    },
+                    {
+                      "name": "control_sum_volume",
+                      "expression": "`control_sum_volume`"
+                    },
+                    {
+                      "name": "bronze_sum_volume",
+                      "expression": "`bronze_sum_volume`"
+                    },
+                    {
+                      "name": "status",
+                      "expression": "`status`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "batch",
+                    "displayName": "Extract"
+                  },
+                  {
+                    "fieldName": "control_events",
+                    "displayName": "Source events"
+                  },
+                  {
+                    "fieldName": "bronze_events",
+                    "displayName": "Received"
+                  },
+                  {
+                    "fieldName": "control_sum_volume",
+                    "displayName": "Source Dth",
+                    "format": {
+                      "type": "number",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 1
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "bronze_sum_volume",
+                    "displayName": "Received Dth",
+                    "format": {
+                      "type": "number",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 1
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "status",
+                    "displayName": "Status"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Reconciliation to source control totals"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "rules",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_rules",
+                  "fields": [
+                    {
+                      "name": "batch",
+                      "expression": "`batch`"
+                    },
+                    {
+                      "name": "rule_name",
+                      "expression": "`rule_name`"
+                    },
+                    {
+                      "name": "action",
+                      "expression": "`action`"
+                    },
+                    {
+                      "name": "rows_checked",
+                      "expression": "`rows_checked`"
+                    },
+                    {
+                      "name": "rows_failed",
+                      "expression": "`rows_failed`"
+                    },
+                    {
+                      "name": "pass_rate",
+                      "expression": "`pass_rate`"
+                    },
+                    {
+                      "name": "description",
+                      "expression": "`description`"
+                    },
+                    {
+                      "name": "owner",
+                      "expression": "`owner`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "batch",
+                    "displayName": "Extract"
+                  },
+                  {
+                    "fieldName": "rule_name",
+                    "displayName": "Rule"
+                  },
+                  {
+                    "fieldName": "action",
+                    "displayName": "Action"
+                  },
+                  {
+                    "fieldName": "rows_checked",
+                    "displayName": "Checked"
+                  },
+                  {
+                    "fieldName": "rows_failed",
+                    "displayName": "Failed"
+                  },
+                  {
+                    "fieldName": "pass_rate",
+                    "displayName": "Pass rate",
+                    "format": {
+                      "type": "number-percent",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "description",
+                    "displayName": "Meaning"
+                  },
+                  {
+                    "fieldName": "owner",
+                    "displayName": "Owner"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Rule results by extract"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "quarantine",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_quarantine",
+                  "fields": [
+                    {
+                      "name": "batch",
+                      "expression": "`batch`"
+                    },
+                    {
+                      "name": "region_id",
+                      "expression": "`region_id`"
+                    },
+                    {
+                      "name": "gas_day",
+                      "expression": "`gas_day`"
+                    },
+                    {
+                      "name": "volume",
+                      "expression": "`volume`"
+                    },
+                    {
+                      "name": "failed_rules",
+                      "expression": "`failed_rules`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "batch",
+                    "displayName": "Extract"
+                  },
+                  {
+                    "fieldName": "region_id",
+                    "displayName": "Region"
+                  },
+                  {
+                    "fieldName": "gas_day",
+                    "displayName": "Gas day"
+                  },
+                  {
+                    "fieldName": "volume",
+                    "displayName": "Volume",
+                    "format": {
+                      "type": "number",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 1
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "failed_rules",
+                    "displayName": "Failed rules"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Quarantined records"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#FCFCFC",
+        "dark": "#1F272D"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#11171C",
+        "dark": "#E8ECF0"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#8ACAFF"
+      },
+      "visualizationColors": [
+        "#003F5C",
+        "#594E90",
+        "#BC4C96",
+        "#FF5F66",
+        "#FFA600",
+        "#21918C"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}

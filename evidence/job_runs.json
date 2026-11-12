@@ -1,0 +1,1021 @@
+{
+  "job": "cgu_winter_volume",
+  "runs": [
+    {
+      "run_id": 103233183059580,
+      "result": "SUCCESS",
+      "start_time_ms": 1794154993824,
+      "duration_s": 808,
+      "parameters": {
+        "batch": "auto",
+        "season": "2026",
+        "as_of_date": "auto"
+      },
+      "tasks": [
+        {
+          "task": "setup",
+          "result": "SUCCESS",
+          "duration_s": 41,
+          "output": "setup complete: rules=7"
+        },
+        {
+          "task": "ingest_eia",
+          "result": "SUCCESS",
+          "duration_s": 17,
+          "output": {
+            "status": {
+              "N3010CO2": "downloaded",
+              "N3020CO2": "downloaded",
+              "NA1501_SCO_8": "downloaded",
+              "NA1531_SCO_8": "downloaded"
+            },
+            "rows": 982,
+            "latest_period": {
+              "N3010CO2": "2026-08",
+              "N3020CO2": "2026-08",
+              "NA1501_SCO_8": "2024",
+              "NA1531_SCO_8": "2024"
+            }
+          }
+        },
+        {
+          "task": "ingest_weather",
+          "result": "SUCCESS",
+          "duration_s": 23,
+          "output": {
+            "batch": "000",
+            "extract_date": "2026-11-08",
+            "as_of_date": "2026-11-04",
+            "as_of_mode": "auto",
+            "latest_complete_noaa_day": "2026-11-04",
+            "stations": [
+              {
+                "region_id": "summit",
+                "station": "USC00052281",
+                "station_name": "Dillon 1 E",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-05",
+                "complete_pct": 99.3,
+                "season_days_reported": 5
+              },
+              {
+                "region_id": "teller",
+                "station": "USC00054742",
+                "station_name": "Lake George 8 SW",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-05",
+                "complete_pct": 99.0,
+                "season_days_reported": 5
+              },
+              {
+                "region_id": "park_foothills",
+                "station": "USC00053530",
+                "station_name": "Grant",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-05",
+                "complete_pct": 99.1,
+                "season_days_reported": 5
+              },
+              {
+                "region_id": "pueblo",
+                "station": "USW00093058",
+                "station_name": "Pueblo Memorial Airport",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-04",
+                "complete_pct": 100.0,
+                "season_days_reported": 4
+              },
+              {
+                "region_id": "eastern_plains",
+                "station": "USW00003017",
+                "station_name": "Denver International Airport",
+                "first_day": "1995-03-01",
+                "last_complete_day": "2026-11-04",
+                "complete_pct": 97.1,
+                "season_days_reported": 4
+              },
+              {
+                "region_id": null,
+                "station": "USW00093037",
+                "station_name": "Colorado Springs Municipal Airport",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-04",
+                "complete_pct": 100.0,
+                "season_days_reported": 4
+              }
+            ],
+            "nws": {
+              "status": "ok",
+              "issued_at": "2026-11-08T13:06:47+00:00",
+              "rows": 35,
+              "days": [
+                "2026-11-08",
+                "2026-11-09",
+                "2026-11-10",
+                "2026-11-11",
+                "2026-11-12",
+                "2026-11-13",
+                "2026-11-14"
+              ]
+            }
+          }
+        },
+        {
+          "task": "simulate_source",
+          "result": "SUCCESS",
+          "duration_s": 9,
+          "output": {
+            "control": {
+              "batch": "000",
+              "snapshot_end": "2026-11-04",
+              "as_of_date": "2026-11-04",
+              "extract_date": "2026-11-08",
+              "estimated_volume_ids": [
+                18424,
+                18425,
+                18429,
+                18430,
+                18434,
+                18435
+              ],
+              "extracted_at": 1794103200000,
+              "tables": {
+                "region": {
+                  "events": 5
+                },
+                "customer_count": {
+                  "events": 610
+                },
+                "daily_volume": {
+                  "events": 18436,
+                  "events_by_op": {
+                    "c": 18436
+                  },
+                  "sum_after_volume": 35150926.8
+                }
+              }
+            },
+            "injected": {
+              "batch": "000",
+              "volume_present": 14,
+              "volume_plausible": 12,
+              "known_region": 3,
+              "customer_count_valid": 1,
+              "actual_read_warn": 6,
+              "duplicate_rows": 1,
+              "deletes": 0,
+              "updates": 0,
+              "duplicate_gas_day": "2026-11-01"
+            }
+          }
+        },
+        {
+          "task": "pipeline",
+          "result": "SUCCESS",
+          "duration_s": 132,
+          "output": null
+        },
+        {
+          "task": "forecast",
+          "result": "SUCCESS",
+          "duration_s": 121,
+          "output": {
+            "skipped": false,
+            "model": {
+              "name": "cgu_fpa.volume_forecaster",
+              "version": "1",
+              "alias": "champion"
+            },
+            "region_params": {
+              "eastern_plains": {
+                "balance_point": 58.0,
+                "intercept": 0.07719,
+                "slope": 0.01641,
+                "holiday": -0.00126
+              },
+              "park_foothills": {
+                "balance_point": 59.0,
+                "intercept": 0.06447,
+                "slope": 0.01712,
+                "holiday": 0.02455
+              },
+              "pueblo": {
+                "balance_point": 58.0,
+                "intercept": 0.07461,
+                "slope": 0.01604,
+                "holiday": -0.00081
+              },
+              "summit": {
+                "balance_point": 59.5,
+                "intercept": 0.05772,
+                "slope": 0.01369,
+                "holiday": 0.13887
+              },
+              "teller": {
+                "balance_point": 60.0,
+                "intercept": 0.06979,
+                "slope": 0.01908,
+                "holiday": -0.00336
+              }
+            },
+            "season_total_dth": [
+              {
+                "region_id": "eastern_plains",
+                "p10": 338392.0,
+                "p50": 366627.0,
+                "p90": 396292.0,
+                "customers_planned": 5425.0,
+                "scenario_winters": 30
+              },
+              {
+                "region_id": "park_foothills",
+                "p10": 655554.0,
+                "p50": 689997.0,
+                "p90": 739802.0,
+                "customers_planned": 7233.0,
+                "scenario_winters": 31
+              },
+              {
+                "region_id": "pueblo",
+                "p10": 487450.0,
+                "p50": 541645.0,
+                "p90": 588108.0,
+                "customers_planned": 8476.0,
+                "scenario_winters": 31
+              },
+              {
+                "region_id": "summit",
+                "p10": 313900.0,
+                "p50": 335994.0,
+                "p90": 353495.0,
+                "customers_planned": 3616.0,
+                "scenario_winters": 30
+              },
+              {
+                "region_id": "teller",
+                "p10": 588780.0,
+                "p50": 632633.0,
+                "p90": 690671.0,
+                "customers_planned": 5425.0,
+                "scenario_winters": 29
+              }
+            ],
+            "backtest_overall": {
+              "mape_baseline": 0.1574,
+              "mape_model": 0.1888,
+              "mape_baseline_actual_weather": 0.0437,
+              "mape_model_actual_weather": 0.0193,
+              "p10_p90_coverage": 0.48
+            }
+          }
+        },
+        {
+          "task": "state_backtest",
+          "result": "SUCCESS",
+          "duration_s": 26,
+          "output": {
+            "by_season": {
+              "2023-24": {
+                "season": "2023-24",
+                "balance_point": 58,
+                "base_mcf_per_meter_day": 0.0743,
+                "slope_mcf_per_meter_hdd": 0.01581,
+                "r2_train": 0.981,
+                "train_months": 60,
+                "mape": 0.0514
+              },
+              "2024-25": {
+                "season": "2024-25",
+                "balance_point": 59,
+                "base_mcf_per_meter_day": 0.0726,
+                "slope_mcf_per_meter_hdd": 0.01532,
+                "r2_train": 0.983,
+                "train_months": 60,
+                "mape": 0.0399
+              },
+              "2025-26": {
+                "season": "2025-26",
+                "balance_point": 60,
+                "base_mcf_per_meter_day": 0.0703,
+                "slope_mcf_per_meter_hdd": 0.01478,
+                "r2_train": 0.989,
+                "train_months": 60,
+                "mape": 0.0414
+              }
+            },
+            "mape_overall": 0.0443,
+            "winter_bcf": {
+              "2018-19": 145.3,
+              "2019-20": 135.4,
+              "2020-21": 143.4,
+              "2021-22": 138.0,
+              "2022-23": 152.9,
+              "2023-24": 138.2,
+              "2024-25": 137.1,
+              "2025-26": 110.2
+            }
+          }
+        },
+        {
+          "task": "reforecast",
+          "result": "SUCCESS",
+          "duration_s": 63,
+          "output": {
+            "as_of_date": "2026-11-04",
+            "model_version": "1",
+            "nws_issued_at": "2026-11-08 13:06:47",
+            "summary": [
+              {
+                "region_id": "eastern_plains",
+                "days_actual": 4,
+                "plan_to_date": 6543.0,
+                "actual_to_date": 5368.0,
+                "weather_variance_pct": -20.1,
+                "customer_variance_pct": 3.2,
+                "other_variance_pct": -1.0,
+                "total_variance_pct": -18.0,
+                "published_p50": 366627.0,
+                "reforecast_p10": 344014.0,
+                "reforecast_p50": 372691.0,
+                "reforecast_p90": 402130.0,
+                "reforecast_vs_plan_pct": 1.7,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 90.0,
+                "next7_normal_hdd": 169.0
+              },
+              {
+                "region_id": "park_foothills",
+                "days_actual": 4,
+                "plan_to_date": 13893.0,
+                "actual_to_date": 11737.0,
+                "weather_variance_pct": -13.6,
+                "customer_variance_pct": -0.0,
+                "other_variance_pct": -1.9,
+                "total_variance_pct": -15.5,
+                "published_p50": 689997.0,
+                "reforecast_p10": 634298.0,
+                "reforecast_p50": 681088.0,
+                "reforecast_p90": 722118.0,
+                "reforecast_vs_plan_pct": -1.3,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 142.0,
+                "next7_normal_hdd": 231.0
+              },
+              {
+                "region_id": "pueblo",
+                "days_actual": 4,
+                "plan_to_date": 9078.0,
+                "actual_to_date": 8284.0,
+                "weather_variance_pct": -24.4,
+                "customer_variance_pct": 0.0,
+                "other_variance_pct": 15.6,
+                "total_variance_pct": -8.8,
+                "published_p50": 541645.0,
+                "reforecast_p10": 481452.0,
+                "reforecast_p50": 526356.0,
+                "reforecast_p90": 576551.0,
+                "reforecast_vs_plan_pct": -2.8,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 96.0,
+                "next7_normal_hdd": 162.0
+              },
+              {
+                "region_id": "summit",
+                "days_actual": 4,
+                "plan_to_date": 6200.0,
+                "actual_to_date": 5097.0,
+                "weather_variance_pct": -18.4,
+                "customer_variance_pct": -0.0,
+                "other_variance_pct": 0.6,
+                "total_variance_pct": -17.8,
+                "published_p50": 335994.0,
+                "reforecast_p10": 310551.0,
+                "reforecast_p50": 330398.0,
+                "reforecast_p90": 348649.0,
+                "reforecast_vs_plan_pct": -1.7,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 181.0,
+                "next7_normal_hdd": 253.0
+              },
+              {
+                "region_id": "teller",
+                "days_actual": 4,
+                "plan_to_date": 11518.0,
+                "actual_to_date": 8972.0,
+                "weather_variance_pct": -20.1,
+                "customer_variance_pct": 0.0,
+                "other_variance_pct": -2.0,
+                "total_variance_pct": -22.1,
+                "published_p50": 632633.0,
+                "reforecast_p10": 579558.0,
+                "reforecast_p50": 624847.0,
+                "reforecast_p90": 679772.0,
+                "reforecast_vs_plan_pct": -1.2,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 170.0,
+                "next7_normal_hdd": 227.0
+              }
+            ],
+            "design_day": [
+              {
+                "region_id": "eastern_plains",
+                "design_hdd_1in30": 80.0,
+                "design_hdd_1in50": 80.0,
+                "peak_dth_1in30": 7179.9,
+                "contracted_dth_per_day": 6800.0,
+                "headroom_pct": -5.3,
+                "status": "short"
+              },
+              {
+                "region_id": "park_foothills",
+                "design_hdd_1in30": 77.2,
+                "design_hdd_1in50": 78.4,
+                "peak_dth_1in30": 9262.0,
+                "contracted_dth_per_day": 9800.0,
+                "headroom_pct": 5.8,
+                "status": "covered"
+              },
+              {
+                "region_id": "pueblo",
+                "design_hdd_1in30": 71.4,
+                "design_hdd_1in50": 71.7,
+                "peak_dth_1in30": 9368.7,
+                "contracted_dth_per_day": 10150.0,
+                "headroom_pct": 8.3,
+                "status": "covered"
+              },
+              {
+                "region_id": "summit",
+                "design_hdd_1in30": 78.9,
+                "design_hdd_1in50": 80.4,
+                "peak_dth_1in30": 3837.4,
+                "contracted_dth_per_day": 4200.0,
+                "headroom_pct": 9.4,
+                "status": "covered"
+              },
+              {
+                "region_id": "teller",
+                "design_hdd_1in30": 84.1,
+                "design_hdd_1in50": 84.5,
+                "peak_dth_1in30": 8550.9,
+                "contracted_dth_per_day": 9700.0,
+                "headroom_pct": 13.4,
+                "status": "covered"
+              }
+            ]
+          }
+        },
+        {
+          "task": "serve",
+          "result": "SUCCESS",
+          "duration_s": 345,
+          "output": {
+            "metric_view": "cgu_fpa.gas_volume_metrics",
+            "synced_tables": [
+              {
+                "table": "cgu_serving.forecast_season",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_tracker_summary",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_tracker",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_reforecast",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.design_day",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.gold_dq_summary",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.gold_reconciliation",
+                "action": "created",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.backtest_results",
+                "action": "created",
+                "state": "COMPLETED"
+              }
+            ],
+            "plan_published_versions": []
+          }
+        },
+        {
+          "task": "evidence",
+          "result": "SUCCESS",
+          "duration_s": 48,
+          "output": {
+            "evidence_dir": "/Volumes/<catalog>/cgu_landing/evidence/batch_000",
+            "files": [
+              "backtest.md",
+              "design_day.md",
+              "forecast_season.md",
+              "injected_vs_caught.md",
+              "lakebase_reads.md",
+              "nws_forecast.md",
+              "pipeline_dq.md",
+              "reconciliation.md",
+              "reforecast_asof_2026-11-04.md",
+              "state_backtest.md",
+              "uc_governance.md"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "run_id": 325813508085740,
+      "result": "SUCCESS",
+      "start_time_ms": 1794315604625,
+      "duration_s": 498,
+      "parameters": {
+        "batch": "auto",
+        "season": "2026",
+        "as_of_date": "auto"
+      },
+      "tasks": [
+        {
+          "task": "setup",
+          "result": "SUCCESS",
+          "duration_s": 43,
+          "output": "setup complete: rules=7"
+        },
+        {
+          "task": "ingest_eia",
+          "result": "SUCCESS",
+          "duration_s": 16,
+          "output": {
+            "status": {
+              "N3010CO2": "downloaded",
+              "N3020CO2": "downloaded",
+              "NA1501_SCO_8": "downloaded",
+              "NA1531_SCO_8": "downloaded"
+            },
+            "rows": 982,
+            "latest_period": {
+              "N3010CO2": "2026-08",
+              "N3020CO2": "2026-08",
+              "NA1501_SCO_8": "2024",
+              "NA1531_SCO_8": "2024"
+            }
+          }
+        },
+        {
+          "task": "ingest_weather",
+          "result": "SUCCESS",
+          "duration_s": 25,
+          "output": {
+            "batch": "001",
+            "extract_date": "2026-11-10",
+            "as_of_date": "2026-11-06",
+            "as_of_mode": "auto",
+            "latest_complete_noaa_day": "2026-11-06",
+            "stations": [
+              {
+                "region_id": "summit",
+                "station": "USC00052281",
+                "station_name": "Dillon 1 E",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 99.3,
+                "season_days_reported": 6
+              },
+              {
+                "region_id": "teller",
+                "station": "USC00054742",
+                "station_name": "Lake George 8 SW",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 99.0,
+                "season_days_reported": 6
+              },
+              {
+                "region_id": "park_foothills",
+                "station": "USC00053530",
+                "station_name": "Grant",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 99.1,
+                "season_days_reported": 6
+              },
+              {
+                "region_id": "pueblo",
+                "station": "USW00093058",
+                "station_name": "Pueblo Memorial Airport",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 100.0,
+                "season_days_reported": 6
+              },
+              {
+                "region_id": "eastern_plains",
+                "station": "USW00003017",
+                "station_name": "Denver International Airport",
+                "first_day": "1995-03-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 97.1,
+                "season_days_reported": 6
+              },
+              {
+                "region_id": null,
+                "station": "USW00093037",
+                "station_name": "Colorado Springs Municipal Airport",
+                "first_day": "1995-01-01",
+                "last_complete_day": "2026-11-06",
+                "complete_pct": 100.0,
+                "season_days_reported": 6
+              }
+            ],
+            "nws": {
+              "status": "ok",
+              "issued_at": "2026-11-10T12:31:49+00:00",
+              "rows": 35,
+              "days": [
+                "2026-11-10",
+                "2026-11-11",
+                "2026-11-12",
+                "2026-11-13",
+                "2026-11-14",
+                "2026-11-15",
+                "2026-11-16"
+              ]
+            }
+          }
+        },
+        {
+          "task": "simulate_source",
+          "result": "SUCCESS",
+          "duration_s": 9,
+          "output": {
+            "control": {
+              "batch": "001",
+              "snapshot_end": "2026-11-04",
+              "as_of_date": "2026-11-06",
+              "extract_date": "2026-11-10",
+              "estimated_volume_ids": [
+                18439,
+                18440,
+                18444,
+                18445
+              ],
+              "extracted_at": 1794276000000,
+              "tables": {
+                "region": {
+                  "events": 0
+                },
+                "customer_count": {
+                  "events": 0
+                },
+                "daily_volume": {
+                  "events": 17,
+                  "events_by_op": {
+                    "c": 10,
+                    "u": 6,
+                    "d": 1
+                  },
+                  "sum_after_volume": 34637.9
+                }
+              }
+            },
+            "injected": {
+              "batch": "001",
+              "volume_present": 0,
+              "volume_plausible": 0,
+              "known_region": 0,
+              "customer_count_valid": 0,
+              "actual_read_warn": 4,
+              "duplicate_rows": 0,
+              "deletes": 1,
+              "updates": 6,
+              "duplicate_gas_day": "2026-11-01"
+            }
+          }
+        },
+        {
+          "task": "pipeline",
+          "result": "SUCCESS",
+          "duration_s": 122,
+          "output": null
+        },
+        {
+          "task": "forecast",
+          "result": "SUCCESS",
+          "duration_s": 44,
+          "output": {
+            "skipped": true,
+            "reason": "plan for 2026-10-01 already made",
+            "model": {
+              "name": "cgu_fpa.volume_forecaster",
+              "version": "1",
+              "alias": "champion"
+            }
+          }
+        },
+        {
+          "task": "state_backtest",
+          "result": "SUCCESS",
+          "duration_s": 25,
+          "output": {
+            "by_season": {
+              "2023-24": {
+                "season": "2023-24",
+                "balance_point": 58,
+                "base_mcf_per_meter_day": 0.0743,
+                "slope_mcf_per_meter_hdd": 0.01581,
+                "r2_train": 0.981,
+                "train_months": 60,
+                "mape": 0.0514
+              },
+              "2024-25": {
+                "season": "2024-25",
+                "balance_point": 59,
+                "base_mcf_per_meter_day": 0.0726,
+                "slope_mcf_per_meter_hdd": 0.01532,
+                "r2_train": 0.983,
+                "train_months": 60,
+                "mape": 0.0399
+              },
+              "2025-26": {
+                "season": "2025-26",
+                "balance_point": 60,
+                "base_mcf_per_meter_day": 0.0703,
+                "slope_mcf_per_meter_hdd": 0.01478,
+                "r2_train": 0.989,
+                "train_months": 60,
+                "mape": 0.0414
+              }
+            },
+            "mape_overall": 0.0443,
+            "winter_bcf": {
+              "2018-19": 145.3,
+              "2019-20": 135.4,
+              "2020-21": 143.4,
+              "2021-22": 138.0,
+              "2022-23": 152.9,
+              "2023-24": 138.2,
+              "2024-25": 137.1,
+              "2025-26": 110.2
+            }
+          }
+        },
+        {
+          "task": "reforecast",
+          "result": "SUCCESS",
+          "duration_s": 66,
+          "output": {
+            "as_of_date": "2026-11-06",
+            "model_version": "1",
+            "nws_issued_at": "2026-11-10 12:31:49",
+            "summary": [
+              {
+                "region_id": "eastern_plains",
+                "days_actual": 6,
+                "plan_to_date": 9524.0,
+                "actual_to_date": 8270.0,
+                "weather_variance_pct": -15.8,
+                "customer_variance_pct": 3.4,
+                "other_variance_pct": -0.7,
+                "total_variance_pct": -13.2,
+                "published_p50": 366627.0,
+                "reforecast_p10": 346972.0,
+                "reforecast_p50": 370197.0,
+                "reforecast_p90": 402085.0,
+                "reforecast_vs_plan_pct": 1.0,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 98.0,
+                "next7_normal_hdd": 175.0
+              },
+              {
+                "region_id": "park_foothills",
+                "days_actual": 6,
+                "plan_to_date": 20849.0,
+                "actual_to_date": 19046.0,
+                "weather_variance_pct": -7.2,
+                "customer_variance_pct": -0.0,
+                "other_variance_pct": -1.5,
+                "total_variance_pct": -8.6,
+                "published_p50": 689997.0,
+                "reforecast_p10": 635176.0,
+                "reforecast_p50": 680724.0,
+                "reforecast_p90": 725716.0,
+                "reforecast_vs_plan_pct": -1.3,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 150.0,
+                "next7_normal_hdd": 238.0
+              },
+              {
+                "region_id": "pueblo",
+                "days_actual": 6,
+                "plan_to_date": 13679.0,
+                "actual_to_date": 11415.0,
+                "weather_variance_pct": -18.3,
+                "customer_variance_pct": 0.0,
+                "other_variance_pct": 1.7,
+                "total_variance_pct": -16.5,
+                "published_p50": 541645.0,
+                "reforecast_p10": 480879.0,
+                "reforecast_p50": 525444.0,
+                "reforecast_p90": 572247.0,
+                "reforecast_vs_plan_pct": -3.0,
+                "status": "watch",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 108.0,
+                "next7_normal_hdd": 168.0
+              },
+              {
+                "region_id": "summit",
+                "days_actual": 6,
+                "plan_to_date": 9358.0,
+                "actual_to_date": 8286.0,
+                "weather_variance_pct": -14.0,
+                "customer_variance_pct": -0.0,
+                "other_variance_pct": 2.6,
+                "total_variance_pct": -11.5,
+                "published_p50": 335994.0,
+                "reforecast_p10": 311191.0,
+                "reforecast_p50": 328871.0,
+                "reforecast_p90": 348983.0,
+                "reforecast_vs_plan_pct": -2.1,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 184.0,
+                "next7_normal_hdd": 261.0
+              },
+              {
+                "region_id": "teller",
+                "days_actual": 6,
+                "plan_to_date": 17265.0,
+                "actual_to_date": 14827.0,
+                "weather_variance_pct": -12.4,
+                "customer_variance_pct": 0.0,
+                "other_variance_pct": -1.7,
+                "total_variance_pct": -14.1,
+                "published_p50": 632633.0,
+                "reforecast_p10": 580132.0,
+                "reforecast_p50": 624651.0,
+                "reforecast_p90": 678384.0,
+                "reforecast_vs_plan_pct": -1.3,
+                "status": "on plan",
+                "signal": "early signal",
+                "nws_days": 7,
+                "next7_hdd": 174.0,
+                "next7_normal_hdd": 236.0
+              }
+            ],
+            "design_day": [
+              {
+                "region_id": "eastern_plains",
+                "design_hdd_1in30": 80.0,
+                "design_hdd_1in50": 80.0,
+                "peak_dth_1in30": 7179.9,
+                "contracted_dth_per_day": 6800.0,
+                "headroom_pct": -5.3,
+                "status": "short"
+              },
+              {
+                "region_id": "park_foothills",
+                "design_hdd_1in30": 77.2,
+                "design_hdd_1in50": 78.4,
+                "peak_dth_1in30": 9262.0,
+                "contracted_dth_per_day": 9800.0,
+                "headroom_pct": 5.8,
+                "status": "covered"
+              },
+              {
+                "region_id": "pueblo",
+                "design_hdd_1in30": 71.4,
+                "design_hdd_1in50": 71.7,
+                "peak_dth_1in30": 9368.7,
+                "contracted_dth_per_day": 10150.0,
+                "headroom_pct": 8.3,
+                "status": "covered"
+              },
+              {
+                "region_id": "summit",
+                "design_hdd_1in30": 78.9,
+                "design_hdd_1in50": 80.4,
+                "peak_dth_1in30": 3837.4,
+                "contracted_dth_per_day": 4200.0,
+                "headroom_pct": 9.4,
+                "status": "covered"
+              },
+              {
+                "region_id": "teller",
+                "design_hdd_1in30": 84.1,
+                "design_hdd_1in50": 84.5,
+                "peak_dth_1in30": 8550.9,
+                "contracted_dth_per_day": 9700.0,
+                "headroom_pct": 13.4,
+                "status": "covered"
+              }
+            ]
+          }
+        },
+        {
+          "task": "serve",
+          "result": "SUCCESS",
+          "duration_s": 101,
+          "output": {
+            "metric_view": "cgu_fpa.gas_volume_metrics",
+            "synced_tables": [
+              {
+                "table": "cgu_serving.forecast_season",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_tracker_summary",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_tracker",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.season_reforecast",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.design_day",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.gold_dq_summary",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.gold_reconciliation",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              },
+              {
+                "table": "cgu_serving.backtest_results",
+                "action": "refreshed",
+                "state": "COMPLETED"
+              }
+            ],
+            "plan_published_versions": []
+          }
+        },
+        {
+          "task": "evidence",
+          "result": "SUCCESS",
+          "duration_s": 53,
+          "output": {
+            "evidence_dir": "/Volumes/<catalog>/cgu_landing/evidence/batch_001",
+            "files": [
+              "backtest.md",
+              "design_day.md",
+              "forecast_season.md",
+              "injected_vs_caught.md",
+              "lakebase_reads.md",
+              "nws_forecast.md",
+              "pipeline_dq.md",
+              "reconciliation.md",
+              "reforecast_asof_2026-11-06.md",
+              "state_backtest.md",
+              "uc_governance.md"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

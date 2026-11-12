@@ -1,0 +1,73 @@
+resources:
+  jobs:
+    cgu_winter_volume:
+      name: cgu_winter_volume
+      description: >
+        End-to-end winter volume plan for Colorado Gas Utility (fictional): source CDC, NOAA observations,
+        NWS forecast and EIA volumes; validated pipeline; per-customer HDD forecast; statewide real-data
+        backtest; in-season re-forecast and design day; Lakebase serving; and text evidence.
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: batch
+          default: auto
+        - name: season
+          default: "2026"
+        - name: as_of_date
+          default: auto
+        - name: experiment
+          default: ${resources.experiments.cgu_forecast.name}
+        - name: lakebase_project
+          default: ${var.lakebase_project}
+        - name: lakebase_branch
+          default: ${var.lakebase_branch}
+      tasks:
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../src/notebooks/00_setup.py
+        - task_key: ingest_weather
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../src/notebooks/01_ingest_weather.py
+        - task_key: ingest_eia
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../src/notebooks/02_ingest_eia.py
+        - task_key: simulate_source
+          depends_on: [{task_key: ingest_weather}]
+          notebook_task:
+            notebook_path: ../src/notebooks/03_simulate_source.py
+        - task_key: pipeline
+          depends_on: [{task_key: simulate_source}, {task_key: ingest_eia}]
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.cgu_pipeline.id}
+        - task_key: forecast
+          depends_on: [{task_key: pipeline}]
+          notebook_task:
+            notebook_path: ../src/notebooks/04_forecast.py
+        - task_key: state_backtest
+          depends_on: [{task_key: pipeline}]
+          notebook_task:
+            notebook_path: ../src/notebooks/05_state_backtest.py
+        - task_key: reforecast
+          depends_on: [{task_key: forecast}]
+          notebook_task:
+            notebook_path: ../src/notebooks/06_reforecast.py
+        - task_key: serve
+          depends_on: [{task_key: reforecast}, {task_key: state_backtest}]
+          notebook_task:
+            notebook_path: ../src/notebooks/07_serve.py
+        - task_key: evidence
+          depends_on: [{task_key: serve}]
+          notebook_task:
+            notebook_path: ../src/notebooks/08_evidence.py
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: America/Denver
+        pause_status: ${var.schedule_pause_status}
+      email_notifications:
+        on_failure:
+          - ${workspace.current_user.userName}
+      max_concurrent_runs: 1
+      tags:
+        domain: finance

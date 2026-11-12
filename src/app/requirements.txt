@@ -1,0 +1,6 @@
+streamlit>=1.40
+databricks-sdk>=0.150
+databricks-sql-connector>=4.0
+psycopg[binary]>=3.2
+pandas
+altair>=5

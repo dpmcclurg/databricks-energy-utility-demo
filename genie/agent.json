@@ -1,0 +1,247 @@
+{
+  "title": "Colorado Gas Utility - Winter Volume Plan",
+  "description": "Ask about this winter's gas volume plan, the in-season re-forecast (weather, customers, other), the design day against firm transportation, and backtests on synthetic and real EIA Colorado data. Fictional utility, synthetic volumes, real NOAA and NWS weather.",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "00000000000000000000000000000101",
+          "question": [
+            "Are we on track for this winter's volume, and where's our biggest risk?"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000102",
+          "question": [
+            "Show Eastern Plains' daily volume against expected since November 1, split into weather, customer growth, and other."
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000103",
+          "question": [
+            "Do we have enough firm transportation for a design day, and where are we short?"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000104",
+          "question": [
+            "Does this method work on real Colorado data?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "__CATALOG__.cgu_core.weather_forecast",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.backtest_results"
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.design_day",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "status",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.firm_capacity",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.forecast_season",
+          "column_configs": [
+            {
+              "column_name": "period_type",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.gas_volume_metrics"
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.gold_state_monthly"
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.plan_published"
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.season_reforecast",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.season_tracker",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "segment",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.season_tracker_summary",
+          "column_configs": [
+            {
+              "column_name": "region_id",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "signal",
+              "enable_format_assistance": true
+            },
+            {
+              "column_name": "status",
+              "enable_format_assistance": true
+            }
+          ]
+        },
+        {
+          "identifier": "__CATALOG__.cgu_fpa.state_backtest"
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "00000000000000000000000000000201",
+          "content": [
+            "You support the FP&A team and executives of Colorado Gas Utility, a regulated natural gas distribution utility with five service regions: summit, teller, park_foothills, pueblo, eastern_plains. Definitions: Dth = dekatherms (1 Dth = 1 MMBtu). HDD65 = heating degree days, max(0, 65 - mean daily temperature F). The heating season (winter) is November through March. The current winter is the season in forecast_season (for example 2026-27); the plan was made on its forecast_date. The data is current as of as_of_date in season_tracker_summary. 'This winter' or 'to date' means November 1 through that date. Never assume a different as-of date. P10 / P50 / P90 are the warm-winter, expected, and cold-winter volumes; the trading desk secures gas against P50 and plans for P90. Re-forecast: the season rebuilt as actual to date + the NWS 7-day forecast + each historical winter for the remaining days, with today's customers (reforecast_p10/p50/p90). Compare it with the published plan (published_p50). Status uses reforecast_vs_plan_pct: on plan (<3%), watch (3-7%), off plan (>=7%). signal = 'early signal' means fewer than 21 days of actuals; say so when answering. Variance to date has three parts that add up to actual minus plan: weather_variance (model on actual weather with planned customers, minus plan), customer_variance (actual customers versus planned customers, for example new subdivisions), other_variance (actual minus the model with both: occupancy, behavior, data corrections). In season_tracker the daily parts are weather_part, customers_part, other_part on rows with segment = 'actual'. The biggest risk is the region with the largest absolute reforecast_vs_plan in Dth, or any region with design_day.status = 'short'; name the driver (weather, customers, or other) with Dth and percent. Design day: the 1-in-30 coldest day (planning standard; 1-in-50 shown alongside) from a GEV fit of annual maximum HDD65. peak_dth_1in30 is the peak-day requirement with today's customers; compare it with contracted_dth_per_day (firm transportation). headroom_pct below 0 means short. Firm transportation contracts are fictional. state_backtest is the real-data check of the method on EIA Colorado residential plus commercial volumes (MMcf; 1 MMcf is about 1,037 Dth), given the actual weather; report the mean ape per season as monthly error. backtest_results is on the synthetic regions. For backtest_results, lead with mape_model_actual_weather against mape_baseline_actual_weather: that is the method's own error given the weather. mape_model and mape_baseline forecast with normal weather, so their error is mostly how far that winter was from normal; don't present them as accuracy. All three held-out winters were warmer than normal, and the baseline plans on about 3% fewer customers than the winter had (it fits five years of volume), so its low bias offset the weather miss; in a cold winter the two errors would add up. p10_p90_coverage is the share of months inside the range; report it as-is.\n",
+            "Answer at executive level (a short answer with the key numbers, then a small table) unless the user asks for detail. Round Dth to whole numbers and percentages to one decimal. For history and seasonal totals use the gas_volume_metrics metric view with MEASURE()."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "00000000000000000000000000000301",
+          "question": [
+            "What is the winter volume plan by region?"
+          ],
+          "sql": [
+            "SELECT season, region_id, p10, p50, p90, customers_planned, forecast_date, model_version FROM __CATALOG__.cgu_fpa.forecast_season WHERE period_type = 'season' ORDER BY p50 DESC"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000302",
+          "question": [
+            "Are we on track this winter? Show the re-forecast against plan by region."
+          ],
+          "sql": [
+            "SELECT region_name, as_of_date, days_actual, plan_to_date, actual_to_date, weather_variance, customer_variance, other_variance, total_variance_pct, published_p50, reforecast_p10, reforecast_p50, reforecast_p90, reforecast_vs_plan, reforecast_vs_plan_pct, status, signal FROM __CATALOG__.cgu_fpa.season_tracker_summary ORDER BY ABS(reforecast_vs_plan) DESC"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000303",
+          "question": [
+            "Show Eastern Plains' daily volume against expected since November 1, split into weather, customer growth, and other."
+          ],
+          "sql": [
+            "SELECT gas_day, plan, expected, actual, weather_part, customers_part, other_part, customers, tmean FROM __CATALOG__.cgu_fpa.season_tracker WHERE region_id = 'eastern_plains' AND segment = 'actual' ORDER BY gas_day"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000304",
+          "question": [
+            "What does the next 7 days of weather mean for volume, by region?"
+          ],
+          "sql": [
+            "SELECT region_name, gas_day, tmean, hdd65, normal_hdd65, forecast_dth, plan FROM __CATALOG__.cgu_fpa.season_tracker WHERE segment = 'nws_forecast' ORDER BY region_name, gas_day"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000305",
+          "question": [
+            "Do we have enough firm transportation for a design day, and where are we short?"
+          ],
+          "sql": [
+            "SELECT region_name, design_hdd_1in30, design_tmean_1in30, customers, peak_dth_1in30, peak_dth_1in30_low, peak_dth_1in30_high, peak_dth_1in50, contracted_dth_per_day, headroom_dth, headroom_pct, gap_to_1in50_dth, status FROM __CATALOG__.cgu_fpa.design_day ORDER BY headroom_pct"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000306",
+          "question": [
+            "Does this method work on real Colorado data?"
+          ],
+          "sql": [
+            "SELECT season, ROUND(AVG(ape) * 100, 1) AS monthly_error_pct, ROUND(SUM(actual_mmcf) / 1000, 1) AS actual_bcf, ROUND(SUM(predicted_mmcf) / 1000, 1) AS predicted_bcf, MAX(balance_point) AS balance_point, ROUND(MAX(r2_train), 3) AS r2_train FROM __CATALOG__.cgu_fpa.state_backtest GROUP BY season ORDER BY season"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000307",
+          "question": [
+            "How does the new model compare with the Excel baseline in the backtest?"
+          ],
+          "sql": [
+            "SELECT season, ROUND(AVG(mape_model_actual_weather) * 100, 1) AS model_error_given_weather_pct, ROUND(AVG(mape_baseline_actual_weather) * 100, 1) AS baseline_error_given_weather_pct, ROUND(AVG(mape_model) * 100, 1) AS model_error_normal_weather_pct, ROUND(AVG(mape_baseline) * 100, 1) AS baseline_error_normal_weather_pct, ROUND(AVG(p10_p90_coverage) * 100, 0) AS p10_p90_coverage_pct FROM __CATALOG__.cgu_fpa.backtest_results GROUP BY season ORDER BY season"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000308",
+          "question": [
+            "How has the re-forecast changed from run to run?"
+          ],
+          "sql": [
+            "SELECT region_name, batch, as_of_date, days_actual, actual_to_date, reforecast_p10, reforecast_p50, reforecast_p90, reforecast_p90 - reforecast_p10 AS range_p10_p90, reforecast_vs_plan_pct, status FROM __CATALOG__.cgu_fpa.season_reforecast ORDER BY region_name, batch"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000309",
+          "question": [
+            "What is the latest volume requirement published to the trading desk?"
+          ],
+          "sql": [
+            "SELECT plan_version, season, region_id, period, p10, p50, p90, published_by, published_at FROM __CATALOG__.cgu_fpa.plan_published WHERE plan_version = (SELECT MAX(plan_version) FROM __CATALOG__.cgu_fpa.plan_published) AND period = 'Nov-Mar' ORDER BY p50 DESC"
+          ]
+        },
+        {
+          "id": "00000000000000000000000000000310",
+          "question": [
+            "Total volume, use per customer, and Dth per HDD by gas season for each region."
+          ],
+          "sql": [
+            "SELECT `Gas Season`, `Region`, MEASURE(`Total Volume Dth`) AS total_dth, MEASURE(`Dth per Customer Day`) AS dth_per_customer_day, MEASURE(`Dth per HDD`) AS dth_per_hdd FROM __CATALOG__.cgu_fpa.gas_volume_metrics WHERE `Gas Season` <> 'Off season' GROUP BY ALL ORDER BY `Gas Season`, `Region`"
+          ]
+        }
+      ]
+    }
+  }
+}

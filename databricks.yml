@@ -1,0 +1,32 @@
+# Colorado Gas Utility (fictional): winter gas-volume plan on Databricks.
+# One bundle deploys the pipeline, the orchestrating job, the app, the
+# data quality dashboard, and the Lakebase catalog registration.
+bundle:
+  name: cgu-winter-volume
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Workspace catalog that holds the cgu_* schemas.
+  warehouse_id:
+    description: SQL warehouse for the dashboard, Genie Agent, and app fallback reads.
+  lakebase_project:
+    description: Lakebase Autoscaling project ID.
+    default: cgu-fpa-gas
+  lakebase_branch:
+    description: Lakebase branch ID.
+    default: production
+  genie_space_id:
+    description: Genie Agent ID, set after scripts/genie_agent.py runs. "none" until then.
+    default: none
+  schedule_pause_status:
+    description: Daily 6 AM Mountain run of the job. PAUSED until the season's first run; set UNPAUSED to refresh every morning.
+    default: PAUSED
+
+targets:
+  dev:
+    default: true
+    workspace:
+      profile: fe-bar

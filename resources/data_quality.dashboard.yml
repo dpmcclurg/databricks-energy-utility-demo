@@ -1,0 +1,8 @@
+resources:
+  dashboards:
+    data_quality:
+      display_name: CGU Gas Volume Data Quality
+      file_path: ../dashboards/data_quality.lvdash.json
+      warehouse_id: ${var.warehouse_id}
+      dataset_catalog: ${var.catalog}
+      dataset_schema: cgu_fpa
